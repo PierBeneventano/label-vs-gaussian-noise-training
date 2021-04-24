@@ -22,12 +22,7 @@ model_names = sorted(name for name in models.__dict__
 	if name.islower() and not name.startswith("__")
 	and callable(models.__dict__[name]))
 
-vgg_choices = [11,13,15,17,19]
-
 parser = argparse.ArgumentParser(description='Testing dropout on vision tasks.')
-parser.add_argument('--net', choices=['vgg', 'densenet', 'linear'], default='vgg', help='what model to train')
-parser.add_argument('--which_vgg', choices=[11,13,15,17,19], default=19, help='what vgg to train'+ ' | '.join(vgg_choices))
-parser.add_argument('--lin_net_depth', type=int, default=5, help='depth of the linear network to train')
 parser.add_argument('--epochs', default=200, type=int,
 					help='number of total epochs to run')
 parser.add_argument('--train_by_iters', action='store_true', 
@@ -38,7 +33,7 @@ parser.add_argument('--optim_type',
 					choices=['sgd', 'adam'],
 					default='sgd')
 parser.add_argument('--start_epoch', default=1, type=int,
-					help='manual epoch number (useful on restarts)')##
+					help='manual epoch number (useful on restarts)')
 parser.add_argument('--start_iter', default=1, type=int,
 					help='which iteration to start on.')
 parser.add_argument('--batch_size', default=128, type=int,
@@ -52,8 +47,8 @@ parser.add_argument('--print_freq', '-p', default=10, type=int,
 					help='print frequency (default: 10)')
 parser.add_argument('--save_freq', type=int, default=50, 
 					help='How often to save the model.')
-parser.add_argument('--dataset', choices=["cifar10", "cifar100", "MNIST"], default="cifar10",
-					help='cifar10, cifar100, or MNIST')
+parser.add_argument('--dataset', choices=["cifar10", "cifar100"], default="cifar10",
+					help='cifar10 or cifar100')
 parser.add_argument('--label_noise', default=0, type=float,
 					help='probability of having label noise.')
 parser.add_argument('--ln_sched', 
@@ -63,12 +58,10 @@ parser.add_argument('--ln_decay',
 					type=float,
 					default=0.5,
 					help='how much to multiply by when we decay')
-parser.add_argument('--arch', choices=model_names, default="vgg",
+parser.add_argument('--arch', choices=model_names, default="wideresnet16",
 					help='model architecture:' + ' | '.join(model_names))
-# parser.add_argument('--arch', choices=model_names, default="wideresnet16",
-					# help='model architecture:' + ' | '.join(model_names))
 parser.add_argument('--no_augment', action='store_true', 
-					help='whether to have data augmentation') # I guess I'll want it in next projects!
+					help='whether to have data augmentation')
 parser.add_argument('--parallel', action='store_true', help='Whether to run in parallel.')
 parser.add_argument('--data_dir', type=str, help='where the CIFAR data is located.')
 parser.add_argument('--no_bn', action='store_true', help='If true, BatchNorm will be off.')
@@ -92,7 +85,7 @@ def main():
 	
 	print("=> creating model '{}'".format(args.arch))
 	model_args = {
-		"num_classes": 100 if args.dataset == "cifar100" else 10 #is this correct?	
+		"num_classes": 10 if args.dataset == "cifar10" else 100	
 	}
 	model = models.__dict__[args.arch](**model_args)
 	print("Device count", torch.cuda.device_count())
@@ -106,7 +99,6 @@ def main():
 
 	cudnn.benchmark = True
 
-# I want to be able to change this but what if I want to use L2 and there are classes?
 	criterion = nn.CrossEntropyLoss().cuda()
 	optim_hparams = {
 		'base_lr' : args.lr, 
