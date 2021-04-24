@@ -159,7 +159,7 @@ def main():
 				args.inner_lr,
 				inner_lr_hparams)
 
-			target = target.cuda(async=True)
+			target = target.cuda(non_blocking=True)
 			input_data = input_data.cuda()
 
 			update_hparams = {
