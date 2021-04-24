@@ -108,7 +108,6 @@ def main():
 	cudnn.benchmark = True
 
 # I want to be able to change this but what if I want to use L2 and there are classes?
-	criterion = nn.CrossEntropyLoss().cuda()
 	if args.loss == 'cross_entropy':
 		criterion = nn.CrossEntropyLoss().cuda()
 	else:
